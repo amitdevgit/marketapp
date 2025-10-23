@@ -9,7 +9,7 @@ use App\Models\CustomerBillItem;
 use App\Models\Merchant;
 use App\Models\Customer;
 use App\Models\Product;
-use App\Services\BillEditLogService;
+use App\Services\CustomerBillUpdateService;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -148,8 +148,10 @@ class MerchantBillsController extends Controller
             'items.*.misc_adjustment' => 'nullable|numeric',
         ]);
 
-        DB::transaction(function () use ($validated, $merchantBill) {
-            // Store old data for logging
+        $updateSummary = null;
+        
+        DB::transaction(function () use ($validated, $merchantBill, &$updateSummary) {
+            // Store old data for logging and customer bill updates
             $oldData = [
                 'merchant_id' => $merchantBill->merchant_id,
                 'bill_date' => $merchantBill->bill_date->format('Y-m-d'),
@@ -157,9 +159,9 @@ class MerchantBillsController extends Controller
                 'notes' => $merchantBill->notes,
                 'items' => $merchantBill->items->toArray(),
             ];
-
-            // Delete existing items
-            $merchantBill->items()->delete();
+            
+            // Capture old items BEFORE deleting them
+            $oldItems = $merchantBill->items;
 
             // Calculate net quantity and total amount for each item
             $items = collect($validated['items'])->map(function ($item) {
@@ -189,7 +191,15 @@ class MerchantBillsController extends Controller
                 'notes' => $validated['notes'],
             ]);
 
-            // Create new bill items
+            // Automatically update all related customer bills BEFORE deleting merchant bill items
+            $updateSummary = CustomerBillUpdateService::updateCustomerBillsFromMerchantBill(
+                $merchantBill, 
+                $oldItems, 
+                collect($items)
+            );
+
+            // Delete existing items and create new ones AFTER updating customer bills
+            $merchantBill->items()->delete();
             foreach ($items as $item) {
                 $merchantBill->items()->create($item);
             }
@@ -201,15 +211,24 @@ class MerchantBillsController extends Controller
                 'total_amount' => $merchantBill->total_amount,
                 'notes' => $merchantBill->notes,
                 'items' => $items->toArray(),
+                'customer_bill_updates' => $updateSummary,
             ];
 
-            // Log the update
+            // Log the update with customer bill update information
             $changesSummary = BillEditLogService::generateChangesSummary($oldData, $newData);
+            $changesSummary .= ' | Customer Bills: ' . CustomerBillUpdateService::generateUpdateSummary($updateSummary);
             BillEditLogService::logMerchantBillUpdated($merchantBill->id, $oldData, $newData, $changesSummary);
         });
 
+        // Generate success message with customer bill update information
+        $successMessage = 'Merchant bill updated successfully!';
+        if ($updateSummary && count($updateSummary['updated_customer_bills']) > 0) {
+            $customerBillSummary = CustomerBillUpdateService::generateUpdateSummary($updateSummary);
+            $successMessage .= ' ' . $customerBillSummary . '.';
+        }
+
         return redirect()->route('merchant-bills.index')
-            ->with('success', 'Merchant bill updated successfully!');
+            ->with('success', $successMessage);
     }
 
     /**
