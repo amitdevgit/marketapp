@@ -61,8 +61,9 @@
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contact</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Balance</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                        <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
@@ -96,6 +97,17 @@
                                     Restaurant
                                 </span>
                             @endif
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right">
+                            <div class="text-sm font-semibold {{ $customer->balance >= 0 ? 'text-red-600' : 'text-green-600' }}">
+                                ₹{{ number_format($customer->balance, 2) }}
+                            </div>
+                            <div class="text-xs text-gray-500">
+                                Purchased: ₹{{ number_format($customer->total_purchased, 2) }}
+                            </div>
+                            <div class="text-xs text-gray-500">
+                                Paid: ₹{{ number_format($customer->total_paid, 2) }}
+                            </div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             @if($customer->is_active)

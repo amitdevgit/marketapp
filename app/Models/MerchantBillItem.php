@@ -12,6 +12,7 @@ class MerchantBillItem extends Model
         'customer_id',
         'product_id',
         'quantity',
+        'weight',
         'rate',
         'misc_adjustment',
         'net_quantity',
@@ -20,6 +21,7 @@ class MerchantBillItem extends Model
 
     protected $casts = [
         'quantity' => 'decimal:2',
+        'weight' => 'decimal:2',
         'rate' => 'decimal:2',
         'misc_adjustment' => 'decimal:2',
         'net_quantity' => 'decimal:2',

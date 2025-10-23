@@ -54,6 +54,7 @@ class MerchantBillsController extends Controller
             'items.*.customer_id' => 'required|exists:customers,id',
             'items.*.product_id' => 'required|exists:products,id',
             'items.*.quantity' => 'required|numeric|min:0',
+            'items.*.weight' => 'required|numeric|min:0',
             'items.*.rate' => 'required|numeric|min:0',
             'items.*.misc_adjustment' => 'nullable|numeric',
         ]);
@@ -61,13 +62,14 @@ class MerchantBillsController extends Controller
         DB::transaction(function () use ($validated) {
             // Calculate net quantity and total amount for each item
             $items = collect($validated['items'])->map(function ($item) {
-                $netQuantity = $item['quantity'] - ($item['misc_adjustment'] ?? 0); // Changed from + to -
-                $totalAmount = $netQuantity * $item['rate'];
+                $netQuantity = $item['weight'] - ($item['misc_adjustment'] ?? 0); // Net Qty = Weight - Misc Adj
+                $totalAmount = $netQuantity * $item['rate']; // Total = Net Qty × Rate
                 
                 return [
                     'customer_id' => $item['customer_id'],
                     'product_id' => $item['product_id'],
                     'quantity' => $item['quantity'],
+                    'weight' => $item['weight'],
                     'rate' => $item['rate'],
                     'misc_adjustment' => $item['misc_adjustment'] ?? 0,
                     'net_quantity' => $netQuantity,
@@ -141,6 +143,7 @@ class MerchantBillsController extends Controller
             'items.*.customer_id' => 'required|exists:customers,id',
             'items.*.product_id' => 'required|exists:products,id',
             'items.*.quantity' => 'required|numeric|min:0',
+            'items.*.weight' => 'required|numeric|min:0',
             'items.*.rate' => 'required|numeric|min:0',
             'items.*.misc_adjustment' => 'nullable|numeric',
         ]);
@@ -160,13 +163,14 @@ class MerchantBillsController extends Controller
 
             // Calculate net quantity and total amount for each item
             $items = collect($validated['items'])->map(function ($item) {
-                $netQuantity = $item['quantity'] - ($item['misc_adjustment'] ?? 0); // Changed from + to -
-                $totalAmount = $netQuantity * $item['rate'];
+                $netQuantity = $item['weight'] - ($item['misc_adjustment'] ?? 0); // Net Qty = Weight - Misc Adj
+                $totalAmount = $netQuantity * $item['rate']; // Total = Net Qty × Rate
                 
                 return [
                     'customer_id' => $item['customer_id'],
                     'product_id' => $item['product_id'],
                     'quantity' => $item['quantity'],
+                    'weight' => $item['weight'],
                     'rate' => $item['rate'],
                     'misc_adjustment' => $item['misc_adjustment'] ?? 0,
                     'net_quantity' => $netQuantity,

@@ -90,8 +90,9 @@
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
                             <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Quantity</th>
-                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Rate (₹)</th>
+                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Weight</th>
                             <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Misc Adj.</th>
+                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Rate (₹)</th>
                             <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Net Qty</th>
                             <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Total (₹)</th>
                             <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
@@ -208,10 +209,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 <input type="number" name="items[${itemIndex}][quantity]" step="0.01" min="0" class="w-16 px-2 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 text-right quantity-input" placeholder="0.00" value="${existingItem ? existingItem.quantity : ''}" required>
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-right w-20">
-                <input type="number" name="items[${itemIndex}][rate]" step="0.01" min="0" class="w-16 px-2 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 text-right rate-input" placeholder="0.00" value="${existingItem ? existingItem.rate : ''}" required>
+                <input type="number" name="items[${itemIndex}][weight]" step="0.01" min="0" class="w-16 px-2 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 text-right weight-input" placeholder="0.00" value="${existingItem ? existingItem.weight : ''}" required>
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-right w-20">
                 <input type="number" name="items[${itemIndex}][misc_adjustment]" step="0.01" class="w-16 px-2 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 text-right misc-input" value="${existingItem ? existingItem.misc_adjustment : '0'}" placeholder="0.00">
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-right w-20">
+                <input type="number" name="items[${itemIndex}][rate]" step="0.01" min="0" class="w-16 px-2 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 text-right rate-input" placeholder="0.00" value="${existingItem ? existingItem.rate : ''}" required>
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-right">
                 <span class="text-sm font-medium text-gray-900 net-quantity-display">${existingItem ? existingItem.net_quantity : '0.00'}</span>
@@ -233,6 +237,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Add event listeners for calculations
         const quantityInput = itemRow.querySelector('.quantity-input');
+        const weightInput = itemRow.querySelector('.weight-input');
         const rateInput = itemRow.querySelector('.rate-input');
         const miscInput = itemRow.querySelector('.misc-input');
         const netQuantityDisplay = itemRow.querySelector('.net-quantity-display');
@@ -313,11 +318,11 @@ document.addEventListener('DOMContentLoaded', function() {
         });
 
                 function calculateTotal() {
-                    const quantity = parseFloat(quantityInput.value) || 0;
+                    const weight = parseFloat(weightInput.value) || 0;
                     const rate = parseFloat(rateInput.value) || 0;
                     const misc = parseFloat(miscInput.value) || 0;
-                    const netQuantity = quantity - misc; // Changed from + to -
-                    const total = netQuantity * rate;
+                    const netQuantity = weight - misc; // Net Qty = Weight - Misc Adj
+                    const total = netQuantity * rate; // Total = Net Qty × Rate
                     
                     netQuantityDisplay.textContent = netQuantity.toFixed(2);
                     totalDisplay.textContent = `₹${total.toFixed(2)}`;
@@ -325,6 +330,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
 
         quantityInput.addEventListener('input', calculateTotal);
+        weightInput.addEventListener('input', calculateTotal);
         rateInput.addEventListener('input', calculateTotal);
         miscInput.addEventListener('input', calculateTotal);
 

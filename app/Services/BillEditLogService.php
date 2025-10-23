@@ -120,6 +120,51 @@ class BillEditLogService
     }
 
     /**
+     * Log customer payment creation.
+     */
+    public static function logCustomerPaymentCreated(int $paymentId, array $paymentData): void
+    {
+        self::log(
+            'customer_payment',
+            $paymentId,
+            'created',
+            null,
+            $paymentData,
+            'Customer payment created'
+        );
+    }
+
+    /**
+     * Log customer payment update.
+     */
+    public static function logCustomerPaymentUpdated(int $paymentId, array $oldData, array $newData, string $changesSummary): void
+    {
+        self::log(
+            'customer_payment',
+            $paymentId,
+            'updated',
+            $oldData,
+            $newData,
+            $changesSummary
+        );
+    }
+
+    /**
+     * Log customer payment deletion.
+     */
+    public static function logCustomerPaymentDeleted(int $paymentId, array $paymentData): void
+    {
+        self::log(
+            'customer_payment',
+            $paymentId,
+            'deleted',
+            $paymentData,
+            null,
+            'Customer payment deleted'
+        );
+    }
+
+    /**
      * Generate a human-readable summary of changes.
      */
     public static function generateChangesSummary(array $oldData, array $newData): string
@@ -150,3 +195,5 @@ class BillEditLogService
         return empty($changes) ? 'No significant changes detected' : implode(', ', $changes);
     }
 }
+
+

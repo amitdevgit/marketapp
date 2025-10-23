@@ -48,69 +48,91 @@ class CustomerBillsController extends Controller
                 'notes' => 'nullable|string',
             ]);
 
-            DB::transaction(function () use ($validated) {
-                $customerId = $validated['customer_id'];
-                $billDate = $validated['bill_date'];
+            try {
+                DB::transaction(function () use ($validated) {
+                    $customerId = $validated['customer_id'];
+                    $billDate = $validated['bill_date'];
 
-                // Find or create a single bill for this customer on the selected date
-                $customerBill = CustomerBill::firstOrCreate(
-                    [
-                        'customer_id' => $customerId,
-                        'bill_date' => $billDate,
-                    ],
-                    [
-                        'total_amount' => 0,
-                        'notes' => $validated['notes'],
-                    ]
-                );
+                    // Check if there are any unbilled merchant items for this customer
+                    $alreadyBilledItemIds = CustomerBillItem::whereHas('customerBill', function($query) use ($customerId) {
+                        $query->where('customer_id', $customerId);
+                    })->pluck('merchant_bill_item_id')->toArray();
+                    
+                    $unbilledMerchantItems = MerchantBillItem::where('customer_id', $customerId)
+                        ->whereNotIn('id', $alreadyBilledItemIds)
+                        ->with(['product', 'merchantBill.merchant'])
+                        ->get();
 
-                // Load ALL merchant bill items for this customer (regardless of date)
-                $merchantBillItems = MerchantBillItem::where('customer_id', $customerId)
-                    ->with(['product', 'merchantBill.merchant'])
-                    ->get();
-
-                if ($merchantBillItems->isEmpty()) {
-                    throw new \Exception('No products found for this customer in merchant bills.');
-                }
-
-                // Prevent adding the same merchant items twice
-                $existingLinkedItemIds = $customerBill->items()
-                    ->pluck('merchant_bill_item_id')
-                    ->filter()
-                    ->toArray();
-
-                foreach ($merchantBillItems as $merchantItem) {
-                    if (in_array($merchantItem->id, $existingLinkedItemIds, true)) {
-                        continue;
+                    if ($unbilledMerchantItems->isEmpty()) {
+                        throw new \Exception('No unbilled products found for this customer. All merchant bill items have already been included in customer bills.');
                     }
 
-                    $customerBill->items()->create([
-                        'merchant_bill_item_id' => $merchantItem->id,
-                        'product_id' => $merchantItem->product_id,
-                        'quantity' => $merchantItem->quantity,
-                        'rate' => $merchantItem->rate,
-                        'misc_adjustment' => $merchantItem->misc_adjustment,
-                        'net_quantity' => $merchantItem->net_quantity,
-                        'total_amount' => $merchantItem->total_amount,
+                    // Find or create a single bill for this customer on the selected date
+                    $customerBill = CustomerBill::firstOrCreate(
+                        [
+                            'customer_id' => $customerId,
+                            'bill_date' => $billDate,
+                        ],
+                        [
+                            'total_amount' => 0,
+                            'notes' => $validated['notes'],
+                        ]
+                    );
+
+                    // Prevent adding the same merchant items twice to this specific bill
+                    $existingLinkedItemIds = $customerBill->items()
+                        ->pluck('merchant_bill_item_id')
+                        ->filter()
+                        ->toArray();
+
+                    $newItemsTotal = 0;
+                    foreach ($unbilledMerchantItems as $merchantItem) {
+                        if (in_array($merchantItem->id, $existingLinkedItemIds, true)) {
+                            continue;
+                        }
+
+                        $customerBill->items()->create([
+                            'merchant_bill_item_id' => $merchantItem->id,
+                            'product_id' => $merchantItem->product_id,
+                            'quantity' => $merchantItem->quantity,
+                            'weight' => $merchantItem->weight,
+                            'rate' => $merchantItem->rate,
+                            'misc_adjustment' => $merchantItem->misc_adjustment,
+                            'net_quantity' => $merchantItem->net_quantity,
+                            'total_amount' => $merchantItem->total_amount,
+                        ]);
+                        
+                        $newItemsTotal += $merchantItem->total_amount;
+                    }
+
+                    // Recalculate total
+                    $recalculatedTotal = $customerBill->items()->sum('total_amount');
+                    $customerBill->update(['total_amount' => $recalculatedTotal]);
+
+                    // Update customer balance with only the NEW amount
+                    if ($newItemsTotal > 0) {
+                        $customer = Customer::find($customerId);
+                        $customer->updateBalance($newItemsTotal, 'bill');
+                    }
+
+                    // Log the creation/update
+                    BillEditLogService::logCustomerBillCreated($customerBill->id, [
+                        'customer_id' => $customerBill->customer_id,
+                        'bill_date' => $customerBill->bill_date->format('Y-m-d'),
+                        'total_amount' => $customerBill->total_amount,
+                        'notes' => $customerBill->notes,
+                        'items_count' => $customerBill->items()->count(),
                     ]);
-                }
+                });
 
-                // Recalculate total
-                $recalculatedTotal = $customerBill->items()->sum('total_amount');
-                $customerBill->update(['total_amount' => $recalculatedTotal]);
-
-                // Log the creation/update
-                BillEditLogService::logCustomerBillCreated($customerBill->id, [
-                    'customer_id' => $customerBill->customer_id,
-                    'bill_date' => $customerBill->bill_date->format('Y-m-d'),
-                    'total_amount' => $customerBill->total_amount,
-                    'notes' => $customerBill->notes,
-                    'items_count' => $customerBill->items()->count(),
-                ]);
-            });
-
-            return redirect()->route('customer-bills.index')
-                ->with('success', 'Customer Bill generated/updated successfully!');
+                return redirect()->route('customer-bills.index')
+                    ->with('success', 'Customer Bill generated/updated successfully!');
+                    
+            } catch (\Exception $e) {
+                return redirect()->back()
+                    ->withInput()
+                    ->with('error', $e->getMessage());
+            }
         }
 
     /**

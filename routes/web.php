@@ -28,10 +28,13 @@ Route::middleware('auth')->group(function () {
     Route::resource('products', ProductsController::class);
     Route::resource('merchant-bills', MerchantBillsController::class);
     Route::resource('customer-bills', \App\Http\Controllers\CustomerBillsController::class);
+    Route::resource('customer-payments', \App\Http\Controllers\CustomerPaymentsController::class);
     Route::post('merchant-bills/{merchantBill}/generate-customer-bills', [\App\Http\Controllers\MerchantBillsController::class, 'generateCustomerBills'])->name('merchant-bills.generate-customer-bills');
     Route::get('customer-bills/get-customer-products', [\App\Http\Controllers\CustomerBillsController::class, 'getCustomerProducts'])->name('customer-bills.get-customer-products');
     Route::get('customer-bills/{customerBill}/pdf', [\App\Http\Controllers\CustomerBillsController::class, 'generatePdf'])->name('customer-bills.pdf');
     Route::get('customer-bills/{customerBill}/print', [\App\Http\Controllers\CustomerBillsController::class, 'print'])->name('customer-bills.print');
+    Route::get('customer-payments/get-customer-bills', [\App\Http\Controllers\CustomerPaymentsController::class, 'getCustomerBills'])->name('customer-payments.get-customer-bills');
+    Route::get('api/customers/{customerId}/balance', [\App\Http\Controllers\CustomerPaymentsController::class, 'getCustomerBalance'])->name('api.customers.balance');
 
     // Bill edit logs routes
     Route::get('bill-edit-logs', [\App\Http\Controllers\BillEditLogController::class, 'index'])->name('bill-edit-logs.index');

@@ -117,6 +117,14 @@
                                 </svg>
                                 Customer Billing
                             </a>
+
+                            <!-- Customer Payments -->
+                            <a href="{{ route('customer-payments.index') }}" class="nav-item flex items-center px-3 py-3 text-sm font-medium rounded-lg {{ request()->routeIs('customer-payments.*') ? 'active text-white' : 'text-indigo-200' }}">
+                                <svg class="mr-3 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                                </svg>
+                                Customer Payments
+                            </a>
                             
                             <!-- Activity Logs -->
                             <a href="{{ route('bill-edit-logs.index') }}" class="nav-item flex items-center px-3 py-3 text-sm font-medium rounded-lg {{ request()->routeIs('bill-edit-logs.*') ? 'active text-white' : 'text-indigo-200' }}">
