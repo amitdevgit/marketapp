@@ -125,7 +125,7 @@ class MerchantBillsController extends Controller
         $customers = Customer::where('is_active', true)->get();
         $products = Product::where('is_active', true)->get();
         
-        $merchantBill->load('items');
+        $merchantBill->load(['items.customer', 'items.product']);
         
         return view('merchant-bills.edit', compact('merchantBill', 'merchants', 'customers', 'products'));
     }
