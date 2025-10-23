@@ -27,7 +27,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('customers', CustomerController::class);
     Route::resource('products', ProductsController::class);
     Route::resource('merchant-bills', MerchantBillsController::class);
-    Route::resource('customer-bills', \App\Http\Controllers\CustomerBillsController::class);
+    Route::resource('customer-bills', \App\Http\Controllers\CustomerBillsController::class)->except(['edit', 'update']);
     Route::resource('customer-payments', \App\Http\Controllers\CustomerPaymentsController::class);
     Route::post('merchant-bills/{merchantBill}/generate-customer-bills', [\App\Http\Controllers\MerchantBillsController::class, 'generateCustomerBills'])->name('merchant-bills.generate-customer-bills');
     Route::get('customer-bills/get-customer-products', [\App\Http\Controllers\CustomerBillsController::class, 'getCustomerProducts'])->name('customer-bills.get-customer-products');

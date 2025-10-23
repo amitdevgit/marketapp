@@ -105,10 +105,6 @@
                                        class="text-blue-600 hover:text-blue-800 text-sm font-medium">
                                         View
                                     </a>
-                                    <a href="{{ route('customer-bills.edit', $bill) }}" 
-                                       class="text-green-600 hover:text-green-800 text-sm font-medium">
-                                        Edit
-                                    </a>
                                     <a href="{{ route('customer-bills.print', $bill) }}" 
                                        target="_blank"
                                        class="text-purple-600 hover:text-purple-800 text-sm font-medium">
