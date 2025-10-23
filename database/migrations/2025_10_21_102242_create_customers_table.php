@@ -17,6 +17,9 @@ return new class extends Migration
             $table->string('phone');
             $table->text('address');
             $table->string('customer_type')->default('retailer'); // retailer, wholesaler, restaurant
+            $table->decimal('balance', 10, 2)->default(0);
+            $table->decimal('total_purchased', 10, 2)->default(0);
+            $table->decimal('total_paid', 10, 2)->default(0);
             $table->text('notes')->nullable();
             $table->boolean('is_active')->default(true);
             $table->timestamps();

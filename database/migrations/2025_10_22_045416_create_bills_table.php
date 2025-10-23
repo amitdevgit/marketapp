@@ -27,8 +27,9 @@ return new class extends Migration
             $table->foreignId('customer_id')->constrained()->onDelete('cascade');
             $table->foreignId('product_id')->constrained()->onDelete('cascade');
             $table->decimal('quantity', 10, 2);
-            $table->decimal('rate', 10, 2);
+            $table->decimal('weight', 10, 2)->default(0);
             $table->decimal('misc_adjustment', 10, 2)->default(0);
+            $table->decimal('rate', 10, 2);
             $table->decimal('net_quantity', 10, 2);
             $table->decimal('total_amount', 10, 2);
             $table->timestamps();
@@ -39,6 +40,8 @@ return new class extends Migration
             $table->foreignId('customer_id')->constrained()->onDelete('cascade');
             $table->date('bill_date');
             $table->decimal('total_amount', 10, 2);
+            $table->enum('payment_status', ['pending', 'partial', 'paid'])->default('pending');
+            $table->decimal('paid_amount', 10, 2)->default(0);
             $table->enum('status', ['pending', 'paid'])->default('pending');
             $table->text('notes')->nullable();
             $table->timestamps();
@@ -50,7 +53,10 @@ return new class extends Migration
             $table->foreignId('merchant_bill_item_id')->constrained()->onDelete('cascade');
             $table->foreignId('product_id')->constrained()->onDelete('cascade');
             $table->decimal('quantity', 10, 2);
+            $table->decimal('weight', 10, 2)->default(0);
+            $table->decimal('misc_adjustment', 10, 2)->default(0);
             $table->decimal('rate', 10, 2);
+            $table->decimal('net_quantity', 10, 2);
             $table->decimal('total_amount', 10, 2);
             $table->timestamps();
         });
