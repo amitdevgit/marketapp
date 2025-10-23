@@ -36,15 +36,6 @@
                 </svg>
                 Download PDF
             </a>
-            <a href="{{ route('customer-bills.edit', $customerBill) }}" 
-               style="background-color: #059669 !important; color: white !important; padding: 12px 24px !important; border-radius: 8px !important; text-decoration: none !important; font-weight: 500 !important; display: inline-flex !important; align-items: center !important; cursor: pointer !important; border: none !important; font-size: 14px !important; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;"
-               onmouseover="this.style.backgroundColor='#047857' !important; this.style.boxShadow='0 6px 8px rgba(0, 0, 0, 0.15)' !important;"
-               onmouseout="this.style.backgroundColor='#059669' !important; this.style.boxShadow='0 4px 6px rgba(0, 0, 0, 0.1)' !important;">
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: white !important;">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                </svg>
-                Edit Bill
-            </a>
         </div>
     </div>
 </div>
