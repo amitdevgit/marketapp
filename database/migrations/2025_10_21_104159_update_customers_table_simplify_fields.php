@@ -11,9 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('customers', function (Blueprint $table) {
-            $table->dropColumn(['email', 'city', 'state', 'pincode', 'shop_name']);
-        });
+        // These columns were never created in the original customers table
+        // This migration is now redundant but kept for historical consistency
     }
 
     /**

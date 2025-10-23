@@ -11,10 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('merchants', function (Blueprint $table) {
-            $table->string('email')->nullable()->change();
-            $table->dropColumn(['city', 'state', 'pincode']);
-        });
+        // Email is already nullable in the original table creation
+        // No columns need to be dropped as they were never created
+        // This migration is now redundant but kept for historical consistency
     }
 
     /**
