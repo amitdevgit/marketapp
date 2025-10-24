@@ -164,3 +164,5 @@ If you encounter any issues during installation:
 4. Check Laravel logs in `storage/logs/`
 
 The system is designed to work out-of-the-box with minimal configuration required.
+
+

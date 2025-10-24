@@ -106,3 +106,5 @@ Customer | Product | Quantity | Weight | Rate (₹) | Misc Adj. | Net Qty | Tota
 The merchant bill weight functionality has been successfully implemented and tested. All forms now include the weight field, calculations work correctly, and the system is ready for use.
 
 **Next Steps**: Test the web interface manually to ensure the user experience is smooth and intuitive.
+
+

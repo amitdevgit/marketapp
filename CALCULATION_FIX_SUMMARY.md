@@ -62,3 +62,5 @@ The calculation is now working correctly in:
 **Test Bill #15**: `http://localhost:8000/merchant-bills/15`
 
 The system now correctly calculates **Total = Net Qty × Rate** as requested!
+
+

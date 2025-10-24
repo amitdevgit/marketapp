@@ -182,3 +182,5 @@ class TestColumnOrder extends Command
         $this->info('  • All bills cleared for fresh testing');
     }
 }
+
+
