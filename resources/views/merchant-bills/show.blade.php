@@ -100,8 +100,8 @@ a[href*="edit"], button[type="submit"] {
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantity</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Weight</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Misc Adj.</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Net Weight</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rate</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Net Qty</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
                 </tr>
             </thead>
@@ -125,10 +125,10 @@ a[href*="edit"], button[type="submit"] {
                         <div class="text-sm text-gray-900">{{ $item->misc_adjustment }}</div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="text-sm text-gray-900">₹{{ number_format($item->rate, 2) }}</div>
+                        <div class="text-sm font-medium text-gray-900">{{ $item->net_quantity }}</div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="text-sm font-medium text-gray-900">{{ $item->net_quantity }}</div>
+                        <div class="text-sm text-gray-900">₹{{ number_format($item->rate, 2) }}</div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap">
                         <div class="text-sm font-medium text-gray-900">₹{{ number_format($item->total_amount, 2) }}</div>

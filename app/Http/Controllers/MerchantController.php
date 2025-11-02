@@ -14,7 +14,7 @@ class MerchantController extends Controller
      */
     public function index(): View
     {
-        $merchants = Merchant::orderBy('created_at', 'desc')->paginate(10);
+        $merchants = Merchant::orderBy('created_at', 'desc')->get();
         return view('merchants.index', compact('merchants'));
     }
 

@@ -81,7 +81,7 @@
             </div>
             
             <!-- Proper Table Format -->
-            <div class="bg-white border border-gray-200 rounded-lg shadow-sm overflow-visible">
+            <div class="bg-white border border-gray-200 rounded-lg shadow-sm overflow-visible relative">
                 <table class="min-w-full divide-y divide-gray-200">
                     <!-- Table Header -->
                     <thead class="bg-gray-50">
@@ -91,8 +91,8 @@
                             <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Quantity</th>
                             <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Weight</th>
                             <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Misc Adj.</th>
+                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Net Weight</th>
                             <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Rate (₹)</th>
-                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Net Qty</th>
                             <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Total (₹)</th>
                             <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
                         </tr>
@@ -110,6 +110,17 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                     </svg>
                     <p class="text-sm">No items added yet. Click "Add Row" to get started.</p>
+                </div>
+                
+                <!-- Floating Add Row Button at Bottom -->
+                <div class="sticky bottom-0 bg-white border-t border-gray-200 px-6 py-4 flex justify-center" id="bottomAddButtonContainer" style="display: none;">
+                    <button type="button" id="addItemBtnBottom" 
+                            class="inline-flex items-center px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg shadow-lg hover:shadow-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                        </svg>
+                        Add Row
+                    </button>
                 </div>
             </div>
         </div>
@@ -163,16 +174,24 @@ document.addEventListener('DOMContentLoaded', function() {
     // Add first item row
     addItemRow();
 
-    // Add item button click handler
+    // Add item button click handlers (both top and bottom buttons)
     document.getElementById('addItemBtn').addEventListener('click', addItemRow);
+    document.getElementById('addItemBtnBottom').addEventListener('click', addItemRow);
 
     function addItemRow() {
         const container = document.getElementById('billItems');
         const emptyState = document.getElementById('emptyState');
+        const bottomAddBtn = document.getElementById('addItemBtnBottom');
         
         // Hide empty state when adding first item
         if (emptyState) {
             emptyState.style.display = 'none';
+        }
+        
+        // Show bottom add button when adding items
+        const bottomAddBtnContainer = document.getElementById('bottomAddButtonContainer');
+        if (bottomAddBtnContainer) {
+            bottomAddBtnContainer.style.display = 'flex';
         }
         
         const itemRow = document.createElement('tr');
@@ -205,11 +224,11 @@ document.addEventListener('DOMContentLoaded', function() {
             <td class="px-6 py-4 whitespace-nowrap text-right w-20">
                 <input type="number" name="items[${itemIndex}][misc_adjustment]" step="0.01" class="w-16 px-2 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 text-right misc-input" value="0" placeholder="0.00">
             </td>
-            <td class="px-6 py-4 whitespace-nowrap text-right w-20">
-                <input type="number" name="items[${itemIndex}][rate]" step="0.01" min="0" class="w-16 px-2 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 text-right rate-input" placeholder="0.00" required>
-            </td>
             <td class="px-6 py-4 whitespace-nowrap text-right">
                 <span class="text-sm font-medium text-gray-900 net-quantity-display">0.00</span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-right w-20">
+                <input type="number" name="items[${itemIndex}][rate]" step="0.01" min="0" class="w-16 px-2 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 text-right rate-input" placeholder="0.00" required>
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-right">
                 <span class="text-sm font-semibold text-gray-900 total-display">₹0.00</span>
@@ -332,6 +351,11 @@ document.addEventListener('DOMContentLoaded', function() {
             // Show empty state if no items left
             if (container.children.length === 0 && emptyState) {
                 emptyState.style.display = 'block';
+                // Hide bottom add button when no items
+                const bottomAddBtnContainer = document.getElementById('bottomAddButtonContainer');
+                if (bottomAddBtnContainer) {
+                    bottomAddBtnContainer.style.display = 'none';
+                }
             }
         });
     }
