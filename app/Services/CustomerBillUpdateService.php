@@ -12,6 +12,19 @@ use Illuminate\Support\Facades\Log;
 class CustomerBillUpdateService
 {
     /**
+     * Round customer bill total: if decimal part >= 0.5, round up to next integer.
+     * Example: 632.5 -> 633, 632.4 -> 632
+     */
+    public static function roundCustomerBillTotal($total)
+    {
+        $decimal = $total - floor($total);
+        if ($decimal >= 0.5) {
+            return ceil($total);
+        }
+        return floor($total);
+    }
+
+    /**
      * Update all customer bills when a merchant bill is edited.
      */
     public static function updateCustomerBillsFromMerchantBill($merchantBill, $oldItems, $newItemsData)
@@ -67,9 +80,10 @@ class CustomerBillUpdateService
                     $updateSummary['items_added']++;
                 }
 
-                // Recalculate customer bill total
+                // Recalculate customer bill total and round up if decimal >= 0.5
                 $newTotal = $customerBill->items()->sum('total_amount');
-                $customerBill->update(['total_amount' => $newTotal]);
+                $roundedTotal = self::roundCustomerBillTotal($newTotal);
+                $customerBill->update(['total_amount' => $roundedTotal]);
 
                 // Update customer balance
                 if ($balanceAdjustment != 0) {
@@ -81,7 +95,7 @@ class CustomerBillUpdateService
                     'customer_bill_id' => $customerBill->id,
                     'customer_name' => $customer->name,
                     'old_total' => $oldTotal,
-                    'new_total' => $newTotal,
+                    'new_total' => $roundedTotal,
                     'balance_adjustment' => $balanceAdjustment,
                 ];
 
@@ -97,7 +111,7 @@ class CustomerBillUpdateService
                     'customer_bill_id' => $customerBill->id,
                     'customer_name' => $customer->name,
                     'old_total' => $oldTotal,
-                    'new_total' => $newTotal,
+                    'new_total' => $roundedTotal,
                     'balance_adjustment' => $balanceAdjustment,
                 ]);
             }

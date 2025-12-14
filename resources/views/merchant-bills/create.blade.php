@@ -327,15 +327,25 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
 
+                function roundCustomerBillTotal(total) {
+                    // Round up if decimal >= 0.5, otherwise round down
+                    const decimal = total - Math.floor(total);
+                    if (decimal >= 0.5) {
+                        return Math.ceil(total);
+                    }
+                    return Math.floor(total);
+                }
+
                 function calculateTotal() {
                     const weight = parseFloat(weightInput.value) || 0;
                     const rate = parseFloat(rateInput.value) || 0;
                     const misc = parseFloat(miscInput.value) || 0;
                     const netQuantity = weight - misc; // Net Qty = Weight - Misc Adj
-                    const total = netQuantity * rate; // Total = Net Qty × Rate
+                    const calculatedTotal = netQuantity * rate; // Total = Net Qty × Rate
+                    const roundedTotal = roundCustomerBillTotal(calculatedTotal); // Round up if >= 0.5
                     
                     netQuantityDisplay.textContent = netQuantity.toFixed(2);
-                    totalDisplay.textContent = `₹${total.toFixed(2)}`;
+                    totalDisplay.textContent = `₹${roundedTotal.toFixed(0)}`;
                     updateGrandTotal();
                 }
 
@@ -360,6 +370,15 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    function roundCustomerBillTotal(total) {
+        // Round up if decimal >= 0.5, otherwise round down
+        const decimal = total - Math.floor(total);
+        if (decimal >= 0.5) {
+            return Math.ceil(total);
+        }
+        return Math.floor(total);
+    }
+
     function updateGrandTotal() {
         const totalDisplays = document.querySelectorAll('.total-display');
         let grandTotal = 0;
@@ -369,7 +388,9 @@ document.addEventListener('DOMContentLoaded', function() {
             grandTotal += parseFloat(value) || 0;
         });
         
-        document.getElementById('totalAmount').textContent = `₹${grandTotal.toFixed(2)}`;
+        // Round grand total if decimal >= 0.5
+        const roundedGrandTotal = roundCustomerBillTotal(grandTotal);
+        document.getElementById('totalAmount').textContent = `₹${roundedGrandTotal.toFixed(0)}`;
     }
 });
 </script>

@@ -10,6 +10,7 @@ use App\Models\Merchant;
 use App\Models\Customer;
 use App\Models\Product;
 use App\Services\CustomerBillUpdateService;
+use App\Services\BillEditLogService;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -93,6 +94,68 @@ class MerchantBillsController extends Controller
                     $merchantBill->items()->create($item);
                 }
 
+                // Reload merchant bill with items for customer bill generation
+                $merchantBill->refresh();
+                $merchantBill->load('items');
+
+                // Automatically generate customer bills from merchant bill
+                // Group items by customer
+                $itemsByCustomer = $merchantBill->items->groupBy('customer_id');
+
+                foreach ($itemsByCustomer as $customerId => $customerItems) {
+                    // Find or create ONE customer bill for this customer and date
+                    $customerBill = CustomerBill::firstOrCreate(
+                        [
+                            'customer_id' => $customerId,
+                            'bill_date' => $merchantBill->bill_date,
+                        ],
+                        [
+                            'total_amount' => 0,
+                            'notes' => 'Generated from merchant bill #' . $merchantBill->id,
+                        ]
+                    );
+
+                    // Avoid duplicates - check if items are already linked
+                    $existingLinkedItemIds = CustomerBillItem::where('customer_bill_id', $customerBill->id)
+                        ->whereIn('merchant_bill_item_id', $customerItems->pluck('id'))
+                        ->pluck('merchant_bill_item_id')
+                        ->toArray();
+
+                    // Create customer bill items (preserve original qty and adjustments)
+                    foreach ($customerItems as $item) {
+                        if (in_array($item->id, $existingLinkedItemIds, true)) {
+                            continue; // skip already-added merchant bill item
+                        }
+                        $customerBill->items()->create([
+                            'merchant_bill_item_id' => $item->id,
+                            'product_id' => $item->product_id,
+                            'quantity' => $item->quantity,
+                            'weight' => $item->weight,
+                            'rate' => $item->rate,
+                            'misc_adjustment' => $item->misc_adjustment ?? 0,
+                            'net_quantity' => $item->net_quantity,
+                            'total_amount' => $item->total_amount,
+                        ]);
+                    }
+
+                    // Calculate balance increase from new items only
+                    $newItemsTotal = $customerItems->whereNotIn('id', $existingLinkedItemIds)->sum('total_amount');
+
+                    // Recompute total to reflect all items in this consolidated bill
+                    // Round up if decimal >= 0.5
+                    $recalculatedTotal = $customerBill->items()->sum('total_amount');
+                    $roundedTotal = CustomerBillUpdateService::roundCustomerBillTotal($recalculatedTotal);
+                    $customerBill->update(['total_amount' => $roundedTotal]);
+
+                    // Update customer balance with only new items
+                    if ($newItemsTotal > 0) {
+                        $customer = Customer::find($customerId);
+                        if ($customer) {
+                            $customer->updateBalance($newItemsTotal, 'bill');
+                        }
+                    }
+                }
+
                 // Log the creation
                 BillEditLogService::logMerchantBillCreated($merchantBill->id, [
                     'merchant_id' => $merchantBill->merchant_id,
@@ -100,11 +163,12 @@ class MerchantBillsController extends Controller
                     'total_amount' => $merchantBill->total_amount,
                     'notes' => $merchantBill->notes,
                     'items_count' => count($items),
+                    'customer_bills_auto_generated' => true,
                 ]);
         });
 
         return redirect()->route('merchant-bills.index')
-            ->with('success', 'Merchant bill created successfully!');
+            ->with('success', 'Merchant bill created successfully! Customer bills have been automatically generated.');
     }
 
     /**
@@ -245,13 +309,103 @@ class MerchantBillsController extends Controller
             'items_count' => $merchantBill->items->count(),
         ];
 
-        $merchantBill->delete();
+        $updateSummary = null;
 
-        // Log the deletion
-        BillEditLogService::logMerchantBillDeleted($merchantBill->id, $billData);
+        DB::transaction(function () use ($merchantBill, &$updateSummary) {
+            // Load merchant bill items before deletion
+            $merchantBill->load('items');
+            $merchantBillItemIds = $merchantBill->items->pluck('id');
+
+            if ($merchantBillItemIds->isNotEmpty()) {
+                // Find all customer bill items linked to this merchant bill's items
+                $affectedCustomerBillItems = CustomerBillItem::whereIn('merchant_bill_item_id', $merchantBillItemIds)
+                    ->with(['customerBill.customer'])
+                    ->get()
+                    ->groupBy('customer_bill_id');
+
+                $updateSummary = [
+                    'updated_customer_bills' => [],
+                    'balance_adjustments' => [],
+                    'items_removed' => 0,
+                    'bills_deleted' => 0,
+                ];
+
+                // Process each affected customer bill
+                foreach ($affectedCustomerBillItems as $customerBillId => $customerBillItems) {
+                    $customerBill = $customerBillItems->first()->customerBill;
+                    $customer = $customerBill->customer;
+                    
+                    $oldTotal = $customerBill->total_amount;
+                    $balanceDecrease = 0;
+
+                    // Calculate total amount to decrease from customer balance
+                    foreach ($customerBillItems as $customerBillItem) {
+                        $balanceDecrease += $customerBillItem->total_amount;
+                        $customerBillItem->delete();
+                        $updateSummary['items_removed']++;
+                    }
+
+                    // Refresh customer bill to get updated items count
+                    $customerBill->refresh();
+                    
+                    // Recalculate customer bill total (with rounding)
+                    $remainingItemsTotal = $customerBill->items()->sum('total_amount');
+                    $remainingItemsCount = $customerBill->items()->count();
+
+                    // If no items left, delete the customer bill, otherwise update it
+                    if ($remainingItemsCount == 0) {
+                        $customerBill->delete();
+                        $updateSummary['bills_deleted']++;
+                    } else {
+                        $roundedTotal = CustomerBillUpdateService::roundCustomerBillTotal($remainingItemsTotal);
+                        $customerBill->update(['total_amount' => $roundedTotal]);
+                        $updateSummary['updated_customer_bills'][] = [
+                            'customer_bill_id' => $customerBill->id,
+                            'customer_name' => $customer->name,
+                            'old_total' => $oldTotal,
+                            'new_total' => $roundedTotal,
+                            'balance_adjustment' => -$balanceDecrease,
+                        ];
+                    }
+
+                    // Update customer balance (decrease balance)
+                    if ($balanceDecrease > 0 && $customer) {
+                        $customer->total_purchased -= $balanceDecrease;
+                        $customer->balance -= $balanceDecrease;
+                        $customer->save();
+
+                        $updateSummary['balance_adjustments'][] = [
+                            'customer_id' => $customer->id,
+                            'customer_name' => $customer->name,
+                            'adjustment' => -$balanceDecrease,
+                        ];
+                    }
+                }
+            }
+
+            // Delete the merchant bill (this will cascade delete merchant bill items)
+            $merchantBill->delete();
+
+            // Log the deletion
+            BillEditLogService::logMerchantBillDeleted($merchantBill->id, $billData);
+        });
+
+        // Generate success message with customer bill update information
+        $successMessage = 'Merchant bill deleted successfully!';
+        if ($updateSummary) {
+            if ($updateSummary['items_removed'] > 0) {
+                $successMessage .= " Removed {$updateSummary['items_removed']} items from customer bills.";
+            }
+            if ($updateSummary['bills_deleted'] > 0) {
+                $successMessage .= " Deleted {$updateSummary['bills_deleted']} empty customer bills.";
+            }
+            if (count($updateSummary['updated_customer_bills']) > 0) {
+                $successMessage .= " Updated " . count($updateSummary['updated_customer_bills']) . " customer bills.";
+            }
+        }
 
         return redirect()->route('merchant-bills.index')
-            ->with('success', 'Merchant bill deleted successfully!');
+            ->with('success', $successMessage);
     }
 
     /**
@@ -299,8 +453,10 @@ class MerchantBillsController extends Controller
                 }
 
                 // Recompute total to reflect all items in this consolidated bill
+                // Round up if decimal >= 0.5
                 $recalculatedTotal = $customerBill->items()->sum('total_amount');
-                $customerBill->update(['total_amount' => $recalculatedTotal]);
+                $roundedTotal = CustomerBillUpdateService::roundCustomerBillTotal($recalculatedTotal);
+                $customerBill->update(['total_amount' => $roundedTotal]);
             }
         });
 

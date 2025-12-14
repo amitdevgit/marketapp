@@ -109,47 +109,84 @@
         
         @if($customerBill->items->count() > 0)
             <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
+                <table id="billItemsTable" class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gradient-to-r from-gray-50 to-gray-100">
                         <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Merchant</th>
-                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Quantity</th>
-                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Rate (₹)</th>
-                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Total (₹)</th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                                <div class="flex items-center">
+                                    <svg class="w-4 h-4 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                                    </svg>
+                                    Product
+                                </div>
+                            </th>
+                            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                                <div class="flex items-center">
+                                    <svg class="w-4 h-4 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                                    </svg>
+                                    Merchant
+                                </div>
+                            </th>
+                            <th class="px-6 py-4 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                                <div class="flex items-center justify-end">
+                                    <svg class="w-4 h-4 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                    </svg>
+                                    Quantity
+                                </div>
+                            </th>
+                            <th class="px-6 py-4 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                                <div class="flex items-center justify-end">
+                                    <svg class="w-4 h-4 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    Rate (₹)
+                                </div>
+                            </th>
+                            <th class="px-6 py-4 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                                <div class="flex items-center justify-end">
+                                    <svg class="w-4 h-4 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                                    </svg>
+                                    Total (₹)
+                                </div>
+                            </th>
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
                         @foreach($customerBill->items as $item)
-                            <tr class="hover:bg-gray-50 transition-colors duration-200">
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm font-medium text-gray-900">{{ $item->product->name }}</div>
-                                    <div class="text-sm text-gray-500">{{ $item->product->unit }}</div>
+                            <tr class="hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 transition-all duration-200 border-b border-gray-100">
+                                <td class="px-6 py-5 whitespace-nowrap">
+                                    <div class="text-sm font-semibold text-gray-900">{{ $item->product->name }}</div>
+                                    <div class="text-xs text-gray-500 bg-gray-100 rounded-full px-3 py-1 inline-block mt-1">
+                                        {{ $item->product->unit }}
+                                    </div>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
+                                <td class="px-6 py-5 whitespace-nowrap">
                                     @if($item->merchantBillItem && $item->merchantBillItem->merchantBill)
-                                        <div class="text-sm text-gray-900">{{ $item->merchantBillItem->merchantBill->merchant->name }}</div>
-                                        <div class="text-sm text-gray-500">{{ $item->merchantBillItem->merchantBill->bill_date->format('M d, Y') }}</div>
+                                        <div class="text-sm font-medium text-gray-900">{{ $item->merchantBillItem->merchantBill->merchant->name }}</div>
+                                        <div class="text-xs text-gray-500">{{ $item->merchantBillItem->merchantBill->bill_date->format('M d, Y') }}</div>
                                     @else
-                                        <div class="text-sm text-gray-500">Manual Entry</div>
+                                        <div class="text-sm text-gray-500 italic">Manual Entry</div>
                                     @endif
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-right">
-                                    <div class="text-sm text-gray-900">{{ number_format($item->net_quantity, 2) }}</div>
+                                <td class="px-6 py-5 whitespace-nowrap text-right">
+                                    <div class="text-sm font-medium text-gray-900">{{ number_format($item->net_quantity, 2) }}</div>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-right">
-                                    <div class="text-sm text-gray-900">₹{{ number_format($item->rate, 2) }}</div>
+                                <td class="px-6 py-5 whitespace-nowrap text-right">
+                                    <div class="text-sm font-medium text-gray-900">₹{{ number_format($item->rate, 2) }}</div>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-right">
-                                    <div class="text-sm font-semibold text-gray-900">₹{{ number_format($item->total_amount, 2) }}</div>
+                                <td class="px-6 py-5 whitespace-nowrap text-right">
+                                    <div class="text-sm font-bold text-gray-900">₹{{ number_format($item->total_amount, 2) }}</div>
                                 </td>
                             </tr>
                         @endforeach
                     </tbody>
-                    <tfoot class="bg-gray-50">
+                    <tfoot class="bg-gradient-to-r from-green-50 to-emerald-50">
                         <tr>
-                            <td colspan="4" class="px-6 py-4 text-right text-sm font-semibold text-gray-900">Grand Total:</td>
-                            <td class="px-6 py-4 text-right text-lg font-bold text-green-600">₹{{ number_format($customerBill->total_amount, 2) }}</td>
+                            <td colspan="4" class="px-6 py-4 text-right text-lg font-bold text-gray-900">Grand Total:</td>
+                            <td class="px-6 py-4 text-right text-xl font-bold text-green-600">₹{{ number_format($customerBill->total_amount, 2) }}</td>
                         </tr>
                     </tfoot>
                 </table>
@@ -161,4 +198,83 @@
         @endif
     </div>
 </div>
+
+<!-- DataTables Scripts -->
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+
+<style>
+/* Custom DataTables Styling for Items Table */
+#billItemsTable_wrapper .dataTables_length,
+#billItemsTable_wrapper .dataTables_filter,
+#billItemsTable_wrapper .dataTables_info,
+#billItemsTable_wrapper .dataTables_paginate {
+    padding: 12px 20px;
+    color: #374151;
+    font-weight: 500;
+}
+
+#billItemsTable_wrapper .dataTables_filter input {
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 14px;
+    transition: all 0.2s;
+}
+
+#billItemsTable_wrapper .dataTables_filter input:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    outline: none;
+}
+
+#billItemsTable_wrapper .dataTables_paginate .paginate_button {
+    border-radius: 8px;
+    margin: 0 2px;
+    padding: 8px 12px;
+    border: 1px solid #e5e7eb;
+    background: white;
+    color: #374151;
+    transition: all 0.2s;
+}
+
+#billItemsTable_wrapper .dataTables_paginate .paginate_button:hover {
+    background: #3b82f6;
+    color: white;
+    border-color: #3b82f6;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(59, 130, 246, 0.2);
+}
+
+#billItemsTable_wrapper .dataTables_paginate .paginate_button.current {
+    background: #3b82f6;
+    color: white;
+    border-color: #3b82f6;
+    box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
+}
+
+#billItemsTable tbody tr:hover {
+    background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+    transform: scale(1.01);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+</style>
+
+<script>
+$(document).ready(function() {
+    $('#billItemsTable').DataTable({
+        pageLength: 10,
+        order: [[0, 'asc']],
+        responsive: true,
+        language: {
+            search: "Search items:",
+            lengthMenu: "Show _MENU_ items per page",
+            info: "Showing _START_ to _END_ of _TOTAL_ items",
+            emptyTable: '<div class="text-center py-12"><svg class="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg><p class="text-sm text-gray-500">No items found in this bill.</p></div>',
+            zeroRecords: '<div class="text-center py-12"><svg class="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg><p class="text-sm text-gray-500">No items found matching your search.</p></div>'
+        }
+    });
+});
+</script>
 @endsection

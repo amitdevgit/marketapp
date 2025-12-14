@@ -42,97 +42,40 @@
     <form action="{{ route('merchants.store') }}" method="POST" class="space-y-6">
         @csrf
         
-        <!-- Personal Information -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-                <label for="name" class="block text-sm font-medium text-gray-700 mb-2">
-                    Merchant Name <span class="text-red-500">*</span>
-                </label>
-                <input 
-                    type="text" 
-                    id="name" 
-                    name="name" 
-                    value="{{ old('name') }}"
-                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors duration-200 @error('name') border-red-500 @enderror"
-                    placeholder="Enter merchant name"
-                    required
-                />
-                @error('name')
-                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-                @enderror
-            </div>
-
-            <div>
-                <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
-                    Email Address
-                </label>
-                <input 
-                    type="email" 
-                    id="email" 
-                    name="email" 
-                    value="{{ old('email') }}"
-                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors duration-200 @error('email') border-red-500 @enderror"
-                    placeholder="Enter email address (optional)"
-                />
-                @error('email')
-                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-                @enderror
-            </div>
-        </div>
-
-        <!-- Contact Information -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-                <label for="phone" class="block text-sm font-medium text-gray-700 mb-2">
-                    Phone Number <span class="text-red-500">*</span>
-                </label>
-                <input 
-                    type="tel" 
-                    id="phone" 
-                    name="phone" 
-                    value="{{ old('phone') }}"
-                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors duration-200 @error('phone') border-red-500 @enderror"
-                    placeholder="Enter phone number"
-                    required
-                />
-                @error('phone')
-                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-                @enderror
-            </div>
-
-            <div>
-                <label for="business_name" class="block text-sm font-medium text-gray-700 mb-2">
-                    Business Name <span class="text-red-500">*</span>
-                </label>
-                <input 
-                    type="text" 
-                    id="business_name" 
-                    name="business_name" 
-                    value="{{ old('business_name') }}"
-                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors duration-200 @error('business_name') border-red-500 @enderror"
-                    placeholder="Enter business name"
-                    required
-                />
-                @error('business_name')
-                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-                @enderror
-            </div>
-        </div>
-
-        <!-- Address Information -->
+        <!-- Merchant Name -->
         <div>
-            <label for="address" class="block text-sm font-medium text-gray-700 mb-2">
-                Address <span class="text-red-500">*</span>
+            <label for="name" class="block text-sm font-medium text-gray-700 mb-2">
+                Merchant Name <span class="text-red-500">*</span>
             </label>
-            <textarea 
-                id="address" 
-                name="address" 
-                rows="3"
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors duration-200 @error('address') border-red-500 @enderror"
-                placeholder="Enter complete address"
+            <input 
+                type="text" 
+                id="name" 
+                name="name" 
+                value="{{ old('name') }}"
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors duration-200 @error('name') border-red-500 @enderror"
+                placeholder="Enter merchant name"
                 required
-            >{{ old('address') }}</textarea>
-            @error('address')
+            />
+            @error('name')
+                <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+            @enderror
+        </div>
+
+        <!-- Phone Number -->
+        <div>
+            <label for="phone" class="block text-sm font-medium text-gray-700 mb-2">
+                Phone Number <span class="text-red-500">*</span>
+            </label>
+            <input 
+                type="tel" 
+                id="phone" 
+                name="phone" 
+                value="{{ old('phone') }}"
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors duration-200 @error('phone') border-red-500 @enderror"
+                placeholder="Enter phone number"
+                required
+            />
+            @error('phone')
                 <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
             @enderror
         </div>

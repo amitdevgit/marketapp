@@ -42,115 +42,58 @@
     <form action="{{ route('customers.store') }}" method="POST" class="space-y-6">
         @csrf
         
-        <!-- Personal Information -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-                <label for="name" class="block text-sm font-medium text-gray-700 mb-2">
-                    Customer Name <span class="text-red-500">*</span>
-                </label>
-                <input 
-                    type="text" 
-                    id="name" 
-                    name="name" 
-                    value="{{ old('name') }}"
-                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 @error('name') border-red-500 @enderror"
-                    placeholder="Enter customer name"
-                    required
-                />
-                @error('name')
-                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-                @enderror
-            </div>
-
-            <div>
-                <label for="phone" class="block text-sm font-medium text-gray-700 mb-2">
-                    Phone Number <span class="text-red-500">*</span>
-                </label>
-                <input 
-                    type="tel" 
-                    id="phone" 
-                    name="phone" 
-                    value="{{ old('phone') }}"
-                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 @error('phone') border-red-500 @enderror"
-                    placeholder="Enter phone number"
-                    required
-                />
-                @error('phone')
-                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-                @enderror
-            </div>
+        <!-- Customer Name -->
+        <div>
+            <label for="name" class="block text-sm font-medium text-gray-700 mb-2">
+                Customer Name <span class="text-red-500">*</span>
+            </label>
+            <input 
+                type="text" 
+                id="name" 
+                name="name" 
+                value="{{ old('name') }}"
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 @error('name') border-red-500 @enderror"
+                placeholder="Enter customer name"
+                required
+            />
+            @error('name')
+                <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+            @enderror
         </div>
 
-        <!-- Address Information -->
+        <!-- Phone Number -->
         <div>
-            <label for="address" class="block text-sm font-medium text-gray-700 mb-2">
-                Address <span class="text-red-500">*</span>
+            <label for="phone" class="block text-sm font-medium text-gray-700 mb-2">
+                Phone Number
+            </label>
+            <input 
+                type="tel" 
+                id="phone" 
+                name="phone" 
+                value="{{ old('phone') }}"
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 @error('phone') border-red-500 @enderror"
+                placeholder="Enter phone number (optional)"
+            />
+            @error('phone')
+                <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
+            @enderror
+        </div>
+
+        <!-- Notes -->
+        <div>
+            <label for="notes" class="block text-sm font-medium text-gray-700 mb-2">
+                Notes
             </label>
             <textarea 
-                id="address" 
-                name="address" 
+                id="notes" 
+                name="notes" 
                 rows="3"
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 @error('address') border-red-500 @enderror"
-                placeholder="Enter complete address"
-                required
-            >{{ old('address') }}</textarea>
-            @error('address')
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 @error('notes') border-red-500 @enderror"
+                placeholder="Any additional notes about this customer (optional)"
+            >{{ old('notes') }}</textarea>
+            @error('notes')
                 <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
             @enderror
-        </div>
-
-        <!-- Customer Type -->
-        <div>
-            <label for="customer_type" class="block text-sm font-medium text-gray-700 mb-2">
-                Customer Type <span class="text-red-500">*</span>
-            </label>
-            <select 
-                id="customer_type" 
-                name="customer_type" 
-                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 @error('customer_type') border-red-500 @enderror"
-                required
-            >
-                <option value="">Select customer type</option>
-                <option value="retailer" {{ old('customer_type') == 'retailer' ? 'selected' : '' }}>Retailer</option>
-                <option value="wholesaler" {{ old('customer_type') == 'wholesaler' ? 'selected' : '' }}>Wholesaler</option>
-                <option value="restaurant" {{ old('customer_type') == 'restaurant' ? 'selected' : '' }}>Restaurant</option>
-            </select>
-            @error('customer_type')
-                <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-            @enderror
-        </div>
-
-        <!-- Additional Information -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-                <label for="notes" class="block text-sm font-medium text-gray-700 mb-2">
-                    Notes
-                </label>
-                <textarea 
-                    id="notes" 
-                    name="notes" 
-                    rows="3"
-                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 @error('notes') border-red-500 @enderror"
-                    placeholder="Any additional notes about this customer"
-                >{{ old('notes') }}</textarea>
-                @error('notes')
-                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
-                @enderror
-            </div>
-
-            <div class="flex items-center">
-                <input 
-                    type="checkbox" 
-                    id="is_active" 
-                    name="is_active" 
-                    value="1"
-                    {{ old('is_active', true) ? 'checked' : '' }}
-                    class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                />
-                <label for="is_active" class="ml-2 block text-sm text-gray-900">
-                    Active Customer
-                </label>
-            </div>
         </div>
 
         <!-- Submit Buttons -->

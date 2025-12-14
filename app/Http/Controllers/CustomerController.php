@@ -33,16 +33,28 @@ class CustomerController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'phone' => 'required|string|max:20',
-            'address' => 'required|string',
-            'customer_type' => 'required|in:retailer,wholesaler,restaurant',
+            'phone' => 'nullable|string|max:20',
             'notes' => 'nullable|string',
-            'is_active' => 'nullable|boolean'
         ]);
 
-        $validated['is_active'] = $request->has('is_active');
+        // Only include fields that are provided, let database defaults handle the rest
+        $dataToCreate = [
+            'name' => $validated['name'],
+            // Provide empty strings for required fields (phone, address) that are not provided
+            // so they don't get set to null
+            'phone' => $validated['phone'] ?? '',
+            'address' => '',
+        ];
 
-        Customer::create($validated);
+        // Only add notes if provided
+        if (isset($validated['notes']) && !empty($validated['notes'])) {
+            $dataToCreate['notes'] = $validated['notes'];
+        }
+
+        // Other fields (customer_type, is_active, balance, total_purchased, total_paid)
+        // will use their database default values and won't be set to null
+
+        Customer::create($dataToCreate);
 
         return redirect()->route('customers.index')
             ->with('success', 'Customer added successfully!');

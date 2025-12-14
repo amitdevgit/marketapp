@@ -8,6 +8,7 @@ use App\Models\MerchantBillItem;
 use App\Models\Customer;
 use App\Models\Product;
 use App\Services\BillEditLogService;
+use App\Services\CustomerBillUpdateService;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
@@ -21,9 +22,10 @@ class CustomerBillsController extends Controller
      */
     public function index(): View
     {
+        // Get all customer bills for DataTables (it handles pagination)
         $customerBills = CustomerBill::with(['customer', 'items'])
             ->orderBy('created_at', 'desc')
-            ->paginate(10);
+            ->get();
         
         return view('customer-bills.index', compact('customerBills'));
     }
@@ -105,9 +107,10 @@ class CustomerBillsController extends Controller
                         $newItemsTotal += $merchantItem->total_amount;
                     }
 
-                    // Recalculate total
+                    // Recalculate total and round up if decimal >= 0.5
                     $recalculatedTotal = $customerBill->items()->sum('total_amount');
-                    $customerBill->update(['total_amount' => $recalculatedTotal]);
+                    $roundedTotal = CustomerBillUpdateService::roundCustomerBillTotal($recalculatedTotal);
+                    $customerBill->update(['total_amount' => $roundedTotal]);
 
                     // Update customer balance with only the NEW amount
                     if ($newItemsTotal > 0) {
