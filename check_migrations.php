@@ -71,3 +71,7 @@ echo "1. Run 'php artisan migrate:fresh --seed' to reset database\n";
 echo "2. Check if all controllers exist and are properly imported\n";
 echo "3. Verify that all models have correct fillable fields\n";
 echo "4. Ensure all views exist in resources/views directory\n";
+
+
+
+

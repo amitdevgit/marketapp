@@ -195,3 +195,7 @@ npm run build
 **Last Updated**: October 24, 2025
 **Version**: 1.0.0
 **Laravel Version**: 12.7.1
+
+
+
+

@@ -64,3 +64,7 @@ The calculation is now working correctly in:
 The system now correctly calculates **Total = Net Qty × Rate** as requested!
 
 
+
+
+
+

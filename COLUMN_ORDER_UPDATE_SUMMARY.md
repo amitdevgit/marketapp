@@ -94,3 +94,7 @@ Customer | Product | Quantity | Weight | Misc Adj. | Rate (₹) | Net Qty | Tota
 **The "Misc Adj" column is now positioned before the "Rate" column as requested!**
 
 
+
+
+
+
